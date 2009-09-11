@@ -1,0 +1,121 @@
+view_driver helps to dry up views using sublayouts and sections.
+
+== Sublayouts
+
+Remember when you had to create one more layout which generally was almost the same as the default one for your application or your view templates contained duplicated html-markup.
+
+This is what sublayouts are for.
+
+Easy to use:
+
+* Replace <%= yield %> or <%= @content_for_layout %> in your layout with <%= yield_with_sublayouts %>
+* Put your sublayout into app/views/sublayouts
+* Set the instance variable called @sublayout in the controller using 'sublayout' before_filter or manually
+
+For example, if you've written something like
+
+  sublayout 'edit', :only => [:new, :create, :edit, :update]
+
+in a controller and created a sublayout called app/views/sublayouts/edit.html.erb with <%= yield %> in it, the specified actions will be rendered within that sublayout. 
+
+The action's output will be inserted right in the layout if the sublayout has not been defined.
+
+By default sublayouts live in app/views/sublayouts but you can pick any other folder e.g. 'layouts', creating an initializer with:
+
+  ViewDriver::SUBLAYOUTS_DIR = "layouts"
+  
+Sublayouts are quite suitable with sections.
+
+== Sections
+
+Sections are fragments of view similar to partials, which can be easily used in the application because they are well-structured and can be defined in the controller.
+
+Imagine that in the layout there is a sidebar which can be the same or vary in different places. For example it can have no banner for one controller, or extra-blocks for another one. You can manage it with sections.
+
+=== Naming and location
+
+Default templates for a section are (by precedence):
+
+1) for an action: "app/views/#{@controller.controller_path}/#{@controller.action_name}_#{section_name}.html.erb"
+2) for a controller: "app/views/#{@controller.controller_path}/default_#{section_name}.html.erb"
+3) for an application: "app/views/sections/default_#{section_name}.html.erb"
+
+You can change a default sections' location for an application defining ViewDriver::SECTIONS_DIR.
+
+For rendering there is a helper render_section, which can be put into your view file (it can be a layout, a sublayout or any other view file as well):
+
+  <%= render_section(:sidebar) %>
+
+It will try to find the first template from the defaults above and render it, so if there is no default file for an action, it will take default for a controller and then for an application. If none of them are found it will render nothing.
+
+And you can specify where to take these sections from.
+
+=== sections before_filter to specify templates
+
+  Templates defined by sections before_filter are of higher precendence than the default ones.
+  
+  Still 'sections' is a before_filter it can be chained and controlled by standard options: :only, :except, :if, and :unless.
+  
+  It will be easier to get it through the examples.
+  
+  So let's assume that the current controller is PagesController.
+  
+=== Default values for all sections
+
+  # sections will be taken first from :show action
+  sections 'show'
+  # so when you call render_section(:header) it will render 'pages/show_header' and if it doesn't exist it will look through the default chain
+  
+  # if you pass the default value and the options hash, they will be merged
+  # so this will take all the sections from users folder except sidebar, which will be default
+  sections proc{|c| "users/#{c.action_name}"}, :sidebar => 'pages/default'
+  
+==== If you pass false as a template, it won't render section at all
+  
+  # it won't render sections at all if a user is not logged in
+  sections false, :unless => proc{|c| c.logged_in?}
+  
+  # it won't render sidebar section for the particular actions
+  sections :sidebar => false, :only => [:new, :edit, :update, :create]
+  
+==== Other examples
+  
+  # :sidebar will be 'unlogged_sidebar' if a user is not logged in and default otherwise
+  sections :sidebar => :sidebar_section
+  
+  protected
+  def sidebar_section
+    !logged_in? ? 'unlogged' : nil
+  end
+  
+  # the sections :sidebar and :navigations will be taken from the 'views/users' folder for :galleries and :users actions
+  use_sections :sidebar => 'users/show', :navigation => 'users/index', :only => [:galleries, :users]
+
+  # this sets all the sections to be default from 'users' folder for all requests passing the specified proc
+  use_sections 'users/default', :if => proc{|instance| !%w{static sessions}.include?(instance.controller_name)}
+  
+Besides strings sections before_filter accepts procs and methods (passed as symbols). Check out the sections method in the ActionControllerExtensions module.
+  
+== Add-ons
+
+view_driver also comes with a helper method called 'classes' used to set css-classes or any other attributes conditionally.
+
+  <!-- will add 'logged' class if logged_in? method returns true -->
+  <%= content_tag(:div, 'test', :class => classes('default-class', ['logged', logged_in?])) %>
+  
+it also modifies image_tag a bit in order to use blank :alt attribute by default and duplicate it as :title attribute
+
+  >> image_tag 'quake.gif'
+  => "<img alt='' src='/images/quake.gif' />"
+  >> image_tag 'quake.gif', :alt => 'foo'
+  => "<img alt='foo' src='/images/quake.gif' title='foo' />"
+  >> image_tag 'quake.gif', :alt => 'foo', :title => 'bar'
+  => "<img alt='foo' src='/images/quake.gif' title='bar' />"
+  
+== Installation
+
+  script/plugin install git://github.com/macovsky/view_driver.git
+  
+== Help
+  
+  If you have any troubles using this plugin, you can ping me through robotector AT gmail.
