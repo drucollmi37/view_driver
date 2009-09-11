@@ -85,14 +85,14 @@ And you can specify where to take these sections from.
   
   protected
   def sidebar_section
-    !logged_in? ? 'unlogged' : nil
+    logged_in? ? nil : 'unlogged'
   end
   
   # the sections :sidebar and :navigations will be taken from the 'views/users' folder for :galleries and :users actions
-  use_sections :sidebar => 'users/show', :navigation => 'users/index', :only => [:galleries, :users]
+  sections :sidebar => 'users/show', :navigation => 'users/index', :only => [:galleries, :users]
 
   # this sets all the sections to be default from 'users' folder for all requests passing the specified proc
-  use_sections 'users/default', :if => proc{|instance| !%w{static sessions}.include?(instance.controller_name)}
+  sections 'users/default', :if => proc{|instance| !%w{static sessions}.include?(instance.controller_name)}
   
 Besides strings sections before_filter accepts procs and methods (passed as symbols). Check out the sections method in the ActionControllerExtensions module.
   
