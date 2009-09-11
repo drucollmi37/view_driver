@@ -6,7 +6,7 @@ Remember when you had to create one more layout which generally was almost the s
 
 This is what sublayouts are for.
 
-Easy to use:
+=== How to use sublayouts
 
 * Replace <%= yield %> or <%= @content_for_layout %> in your layout with <%= yield_with_sublayouts %>
 * Put your sublayout into app/views/sublayouts
@@ -42,6 +42,8 @@ Default templates for a section are (by precedence):
 
 You can change a default sections' location for an application defining ViewDriver::SECTIONS_DIR.
 
+=== Rendering
+
 For rendering there is a helper render_section, which can be put into your view file (it can be a layout, a sublayout or any other view file as well):
 
   <%= render_section(:sidebar) %>
@@ -60,7 +62,7 @@ And you can specify where to take these sections from.
   
   So let's assume that the current controller is PagesController.
   
-=== Default values for all sections
+==== Default values for all sections
 
   # sections will be taken first from :show action
   sections 'show'
@@ -118,4 +120,4 @@ it also modifies image_tag a bit in order to use blank :alt attribute by default
   
 == Help
   
-  If you have any troubles using this plugin, you can ping me through robotector AT gmail.
+If you have any troubles using this plugin, you can ping me through robotector AT gmail.
