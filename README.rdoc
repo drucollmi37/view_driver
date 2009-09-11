@@ -54,13 +54,13 @@ And you can specify where to take these sections from.
 
 === sections before_filter to specify templates
 
-  Templates defined by sections before_filter are of higher precendence than the default ones.
-  
-  Still 'sections' is a before_filter it can be chained and controlled by standard options: :only, :except, :if, and :unless.
-  
-  It will be easier to get it through the examples.
-  
-  So let's assume that the current controller is PagesController.
+Templates defined by sections before_filter are of higher precendence than the default ones.
+
+Still 'sections' is a before_filter it can be chained and controlled by standard options: :only, :except, :if, and :unless.
+
+It will be easier to get it through the examples.
+
+So let's assume that the current controller is PagesController.
   
 ==== Default values for all sections
 
